@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController instance;
+
     public float moveSpeed, gravityModifier, jumpPower, runSpeed = 12f;
     public CharacterController charCon;
 
@@ -23,6 +25,11 @@ public class PlayerController : MonoBehaviour
 
     public GameObject bullet;
     public Transform firePoint;
+
+    private void Awake()
+    {
+        instance = this;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -105,6 +112,21 @@ public class PlayerController : MonoBehaviour
         //Handle Shooting
         if (Input.GetMouseButtonDown(0))
         {
+            RaycastHit hit;
+
+            if(Physics.Raycast(camTrans.position, camTrans.forward, out hit, 50f))
+            {
+                if(Vector3.Distance(camTrans.position, hit.point) > 2f)
+                {
+                    firePoint.LookAt(hit.point);
+                }
+                
+            } else
+            {
+                firePoint.LookAt(camTrans.position + (camTrans.forward * 30f));
+            }
+
+
             Instantiate(bullet, firePoint.position, firePoint.rotation);
         }
 
