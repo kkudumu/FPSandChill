@@ -111,9 +111,9 @@ MonoBehaviour:
   moveSpeed: 15
   lifeTime: 5
   theRB: {fileID: 5198622036377639123}
-  impactEffect: {fileID: 7783392239055879024, guid: 61370e3dd30e69c43b7176589e45150b,
+  impactEffect: {fileID: 7783392239055879024, guid: dce233f00cb674448bf10ba0639247c3,
     type: 3}
-  damage: 1
+  damage: 10
   damageEnemy: 0
   damagePlayer: 1
 --- !u!54 &5198622036377639123
