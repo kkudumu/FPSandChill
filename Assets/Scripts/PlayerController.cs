@@ -23,10 +23,18 @@ public class PlayerController : MonoBehaviour
 
     public Animator anim;
 
-    public GameObject bullet;
+    //public GameObject bullet;
     public Transform firePoint;
 
     public Gun activeGun;
+    public List <Gun> allGuns = new List<Gun>();
+    public int currentGun;
+
+    public Transform adsPoint, gunHolder;
+    private Vector3 gunStartPos;
+    public float adsSpeed = 2f;
+
+    public List<Gun> unlockableGuns = new List<Gun>();
 
     private void Awake()
     {
@@ -36,7 +44,10 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        UIController.instance.ammoText.text = "AMMO: " + activeGun.currentAmmo;
+        currentGun--;
+        SwitchGun();
+
+        gunStartPos = gunHolder.localPosition;
     }
 
     // Update is called once per frame
@@ -143,6 +154,27 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            SwitchGun();
+        }
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            CameraController.instance.ZoomIn(activeGun.zoomAmount);
+        }
+
+        if (Input.GetMouseButton(1))
+        {
+            gunHolder.position = Vector3.MoveTowards(gunHolder.position, adsPoint.position, adsSpeed * Time.deltaTime);
+        } else {
+            gunHolder.localPosition = Vector3.MoveTowards(gunHolder.localPosition, gunStartPos, adsSpeed * Time.deltaTime);
+        }
+
+        if (Input.GetMouseButtonUp(1))
+        {
+            CameraController.instance.ZoomOut();
+        }
 
         anim.SetFloat("moveSpeed", moveInput.magnitude);
         anim.SetBool("onGround", canJump);
@@ -163,5 +195,52 @@ public class PlayerController : MonoBehaviour
             UIController.instance.ammoText.text = "AMMO: " + activeGun.currentAmmo;
         }
 
+    }
+
+    public void SwitchGun()
+    {
+        activeGun.gameObject.SetActive(false);
+
+        currentGun++;
+
+        if(currentGun >= allGuns.Count)
+        {
+            currentGun = 0;
+        }
+
+        activeGun = allGuns[currentGun];
+        activeGun.gameObject.SetActive(true);
+
+        UIController.instance.ammoText.text = "AMMO: " + activeGun.currentAmmo;
+
+        firePoint.position = activeGun.firepoint.position;
+    }
+
+    public void AddGun(string gunToAdd)
+    {
+        bool gunUnlocked = false;
+
+        if(unlockableGuns.Count > 0)
+        {
+            for(int i = 0; i < unlockableGuns.Count; i++)
+            {
+                if(unlockableGuns[i].gunName == gunToAdd)
+                {
+                    gunUnlocked = true;
+
+                    allGuns.Add(unlockableGuns[i]);
+
+                    unlockableGuns.RemoveAt(i);
+
+                    i = unlockableGuns.Count;
+                }
+            }
+        }
+
+        if (gunUnlocked)
+        {
+            currentGun = allGuns.Count - 2;
+            SwitchGun();
+        }
     }
 }
